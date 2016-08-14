@@ -365,8 +365,8 @@ trait DeliteGenOps extends BaseGenOps {
           emitOpNodeHeader(o, "DeliteOpReduce[" + quote(reduce.tpePar) + "]", stream)
           stream.println()
           stream.println("    val in = " + col.name)
-          stream.println("    def func = " + makeOpImplMethodNameWithArgs(o, "_reduce"))
-          stream.println("    def zero = " + makeOpImplMethodNameWithArgs(o, "_zero"))
+          stream.println("    def reduce = " + makeOpImplMethodNameWithArgs(o, "_reduce"))
+          //TODO: DAMIEN stream.println("    def zero = " + makeOpImplMethodNameWithArgs(o, "_zero"))
           stream.println("    val size = copyTransformedOrElse(_.size)(" + makeOpMethodName(dc.size) + "(in))")
           stream.println("    override val numDynamicChunks = " + matchChunkInput(reduce.numDynamicChunks))
         case mapreduce:MapReduce =>
@@ -720,7 +720,6 @@ trait DeliteGenOps extends BaseGenOps {
       var dcSizeStream = ""
       var dcApplyStream = ""
       var dcUpdateStream = ""
-      var dcParallelizationStream = ""
       var dcSetLogicalSizeStream = ""
       var dcAppendableStream = ""
       var dcAppendStream = ""
@@ -752,8 +751,6 @@ trait DeliteGenOps extends BaseGenOps {
           val allocTpePars = instAllocReturnTpe(dcb.alloc, ephemeralTpe(tpe.name, List(tpePar("A"))), tpePar("A"))
           val prefix = if (firstBuf) "    if " else "    else if "
 
-          // dcParallelizationStream += "    if (" + isTpe + "(x)) " + makeOpMethodName(dcb.parallelization) + "(" + asTpe + "(x), hasConditions)" + nl
-          dcParallelizationStream += prefix + "(" + isTpe + "(x)) { if (hasConditions) ParSimpleBuffer else ParFlat } // TODO: always generating this right now" + nl
           dcSetLogicalSizeStream +=  prefix + "(" + isTpe + "(x)) " + makeOpMethodName(dcb.setSize) + "(" + asTpe + "(x), y)" + nl
           dcAppendableStream +=      prefix + "(" + isTpe + "(x)) " + makeOpMethodName(dcb.appendable) + "(" + asTpe + "(x), i, "+appendTpe+")" + nl
           dcAppendStream +=          prefix + "(" + isTpe + "(x)) " + makeOpMethodName(dcb.append) + "(" + asTpe + "(x), i, "+appendTpe+")" + nl
@@ -782,11 +779,6 @@ trait DeliteGenOps extends BaseGenOps {
         stream.println()
       }
       if (!firstBuf) {
-        stream.println("  override def dc_parallelization[A:Manifest](x: Exp[DeliteCollection[A]], hasConditions: Boolean)(implicit ctx: SourceContext) = {")
-        stream.print(dcParallelizationStream)
-        stream.println("    else super.dc_parallelization(x, hasConditions)")
-        stream.println("  }")
-        stream.println()
         stream.println("  override def dc_set_logical_size[A:Manifest](x: Exp[DeliteCollection[A]], y: Exp[Int])(implicit ctx: SourceContext) = {")
         stream.print(dcSetLogicalSizeStream)
         stream.println("    else super.dc_set_logical_size(x,y)")
