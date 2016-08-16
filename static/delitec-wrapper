@@ -42,8 +42,9 @@ def main():
     old_cp = os.getenv("CLASSPATH", "")
     os.putenv("CLASSPATH", old_cp + os.pathsep + cp)
 
-    os.system(DELITE_HOME + "/bin/delitec " + dslRunner + " " + " ".join(argv[2:len(argv)]))
-
+    exitCode = os.system(DELITE_HOME + "/bin/delitec " + dslRunner + " " + " ".join(argv[2:len(argv)]))
+    if exitCode != 0:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
