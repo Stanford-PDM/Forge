@@ -309,6 +309,10 @@ def publish(dsl, opts):
     else:
         buildFile.write(sbtBuildFileLocal(dsl))
     buildFile.close()
+    optsFile = open(build_dir + "/.sbtopts", "w")
+    optsFile.write("-mem 8192\n")
+    optsFile.write("-J-Xss4m\n")
+    optsFile.close()
     shutil.copyfile(FORGE_HOME + "/static/build.properties", build_dir + "/project/build.properties")
 
     # executable scripts
