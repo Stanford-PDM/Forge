@@ -143,7 +143,7 @@ trait LibGenOps extends BaseGenOps with BaseGenDataStructures {
           }
           else {
             emitWithIndent("var acc = zero", stream, indent+2)
-            emitWithIndent("var i = 1", stream, indent+2)
+            emitWithIndent("var i = 0", stream, indent+2)
           }
           emitWithIndent("while (i < " + makeOpMethodName(dc.size) + "(in)" + ") {", stream, indent+2)
           emitWithIndent("val e = " + makeOpMethodName(dc.apply) + "(in, i)", stream, indent+4)
