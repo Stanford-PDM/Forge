@@ -118,7 +118,7 @@ trait SimpleVectorDSL extends ForgeApplication {
 
       infix ("filter") ((T ==> MBoolean) :: Vector(T)) implements filter((T,T), 0, ${e => $1(e)}, ${e => e})
 
-      infix ("mapreduce") ((T ==> T,(T,T) ==> T) :: T, TNumeric(T)) implements mapReduce((T,T), 0, ${e => $1(e)}, ${numeric_zero[T]}, ${(a,b) => $2(a,b)})
+      infix ("mapreduce") ((T ==> T,(T,T) ==> T) :: T, TNumeric(T)) implements mapReduce((T,T), 0, ${e => $1(e)}, ${(a,b) => $2(a,b)})
 
       infix ("flatMap") ((T ==> Vector(R)) :: Vector(R), addTpePars = R) implements flatMap((T,R), 0, ${ e => $1(e) })
 

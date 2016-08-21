@@ -85,17 +85,17 @@ trait TableOps {
       infix ("Distinct") (Nil :: Table(A)) implements composite ${ $0.Distinct((k:Rep[A]) => k) }
 
       //bulk reduce ops
-      infix ("Sum") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TNumeric) implements mapReduce((A,R), 0, ${$selector}, ${zeroType[R]}, ${(a,b) => a + b})
+      infix ("Sum") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TNumeric) implements mapReduceZero((A,R), 0, ${$selector}, ${zeroType[R]}, ${(a,b) => a + b})
 
       //TODO: composite op
       infix ("Average") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TNumeric withBound TFractional) implements single ${
         $self.Sum($selector) / upgradeInt[R](table_count($self))
       }
 
-      infix ("Max") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TOrdering) implements mapReduce((A,R), 0, ${$selector}, ${minValue[R]}, ${(a,b) => a max b})
-      infix ("Min") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TOrdering) implements mapReduce((A,R), 0, ${$selector}, ${maxValue[R]}, ${(a,b) => a min b})
+      infix ("Max") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TOrdering) implements mapReduceZero((A,R), 0, ${$selector}, ${minValue[R]}, ${(a,b) => a max b})
+      infix ("Min") ("selector" -> (A ==> R) :: R, addTpePars = R withBound TOrdering) implements mapReduceZero((A,R), 0, ${$selector}, ${maxValue[R]}, ${(a,b) => a min b})
 
-      infix ("Count") ("predicate" -> (A ==> MBoolean) :: MInt) implements mapReduce((A,MInt), 0, ${e => unit(1)}, ${unit(0)}, ${(a,b) => a + b}, Some(${$predicate}))
+      infix ("Count") ("predicate" -> (A ==> MBoolean) :: MInt) implements mapReduceZero((A,MInt), 0, ${e => unit(1)}, ${unit(0)}, ${(a,b) => a + b}, Some(${$predicate}))
       //TODO: these create a scalac typer bug in mirroring definition (see Ops.scala:634)
       //infix ("First") ("predicate" -> (A ==> MBoolean) :: A) implements mapReduce((A,A), 0, ${e => e}, ${zeroType[A]}, ${(a,b) => a}, Some(${$predicate}))
       //infix ("Last") ("predicate" -> (A ==> MBoolean) :: A) implements mapReduce((A,A), 0, ${e => e}, ${zeroType[A]}, ${(a,b) => b}, Some(${$predicate}))

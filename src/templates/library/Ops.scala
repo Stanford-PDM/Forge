@@ -105,7 +105,6 @@ trait LibGenOps extends BaseGenOps with BaseGenDataStructures {
           val dc = ForgeCollections(getHkTpe(c.tpe))
           emitWithIndent("def map: " + repify(mapreduce.tpePars._1) + " => " + repify(mapreduce.tpePars._2) + " = " + inline(o, mapreduce.map), stream, indent+2)
           emitWithIndent("def reduce: (" + repify(mapreduce.tpePars._2) + "," + repify(mapreduce.tpePars._2) + ") => " + repify(mapreduce.tpePars._2) + " = " + inline(o, mapreduce.reduce), stream, indent+2)
-          emitWithIndent("def zero: " + repify(mapreduce.tpePars._2) + " = " + inline(o, mapreduce.zero), stream, indent+2)
           emitWithIndent("val in = " + c.name, stream, indent+2)
           if (mapreduce.cond.isDefined) {
             emitWithIndent("def cond: " + repify(mapreduce.tpePars._1) + " => " + repify(MBoolean) + " = " + inline(o, mapreduce.cond.get), stream, indent+2)
@@ -113,12 +112,42 @@ trait LibGenOps extends BaseGenOps with BaseGenDataStructures {
             emitWithIndent("var i = 0", stream, indent+2)
           }
           else {
-            emitWithIndent("var acc = if (" + makeOpMethodName(dc.size) + "(in) == 0) zero else map(" + makeOpMethodName(dc.apply) + "(in, 0))", stream, indent+2)
+            emitWithIndent("var acc = map(" + makeOpMethodName(dc.apply) + "(in, 0))", stream, indent+2)
             emitWithIndent("var i = 1", stream, indent+2)
           }
           emitWithIndent("while (i < " + makeOpMethodName(dc.size) + "(in)" + ") {", stream, indent+2)
           emitWithIndent("val e = " + makeOpMethodName(dc.apply) + "(in, i)", stream, indent+4)
           if (mapreduce.cond.isDefined) {
+            emitWithIndent("if (cond(e)) {", stream, indent+4)
+            emitWithIndent("if (acc == null) acc = map(e)", stream, indent+6)
+            emitWithIndent("else acc = reduce(acc, map(e))", stream, indent+6)
+            emitWithIndent("}", stream, indent+4)
+          }
+          else {
+            emitWithIndent("acc = " + " reduce(acc, map(e))", stream, indent+4)
+          }
+          emitWithIndent("i += 1", stream, indent+4)
+          emitWithIndent("}", stream, indent+2)
+          emitWithIndent("acc", stream, indent+2)
+        case mapreducezero:MapReduceZero =>
+          val c = o.args.apply(mapreducezero.argIndex)
+          val dc = ForgeCollections(getHkTpe(c.tpe))
+          emitWithIndent("def map: " + repify(mapreducezero.tpePars._1) + " => " + repify(mapreducezero.tpePars._2) + " = " + inline(o, mapreducezero.map), stream, indent+2)
+          emitWithIndent("def reduce: (" + repify(mapreducezero.tpePars._2) + "," + repify(mapreducezero.tpePars._2) + ") => " + repify(mapreducezero.tpePars._2) + " = " + inline(o, mapreducezero.reduce), stream, indent+2)
+          emitWithIndent("def zero: " + repify(mapreducezero.tpePars._2) + " = " + inline(o, mapreducezero.zero), stream, indent+2)
+          emitWithIndent("val in = " + c.name, stream, indent+2)
+          if (mapreducezero.cond.isDefined) {
+            emitWithIndent("def cond: " + repify(mapreducezero.tpePars._1) + " => " + repify(MBoolean) + " = " + inline(o, mapreducezero.cond.get), stream, indent+2)
+            emitWithIndent("var acc = null.asInstanceOf["+quote(mapreducezero.tpePars._2)+"]", stream, indent+2)
+            emitWithIndent("var i = 0", stream, indent+2)
+          }
+          else {
+            emitWithIndent("var acc = zero", stream, indent+2)
+            emitWithIndent("var i = 1", stream, indent+2)
+          }
+          emitWithIndent("while (i < " + makeOpMethodName(dc.size) + "(in)" + ") {", stream, indent+2)
+          emitWithIndent("val e = " + makeOpMethodName(dc.apply) + "(in, i)", stream, indent+4)
+          if (mapreducezero.cond.isDefined) {
             emitWithIndent("if (cond(e)) {", stream, indent+4)
             emitWithIndent("if (acc == null) acc = map(e)", stream, indent+6)
             emitWithIndent("else acc = reduce(acc, map(e))", stream, indent+6)
