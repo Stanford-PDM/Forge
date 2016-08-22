@@ -401,7 +401,7 @@ trait DeliteGenOps extends BaseGenOps {
           val col = o.args.apply(mapreducezero.argIndex)
           val dc = ForgeCollections(getHkTpe(col.tpe))
           if (mapreducezero.cond.isDefined) {
-            emitOpNodeHeader(o, "DeliteOpFilterReduce[" + quote(mapreducezero.tpePars._1) + "," + quote(mapreducezero.tpePars._2) + "]", stream)
+            emitOpNodeHeader(o, "DeliteOpFilterReduceZero[" + quote(mapreducezero.tpePars._1) + "," + quote(mapreducezero.tpePars._2) + "]", stream)
           }
           else {
             emitOpNodeHeader(o, "DeliteOpMapReduceZero[" + quote(mapreducezero.tpePars._1) + "," + quote(mapreducezero.tpePars._2) + "]", stream)
