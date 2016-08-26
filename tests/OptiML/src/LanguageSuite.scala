@@ -96,7 +96,7 @@ trait IndexVectorConstruct2 extends ForgeTestModule with OptiMLApplication {
 
 
 class LanguageSuiteInterpreter extends ForgeSuiteInterpreter {
-  def testSum() { runTest(SumRunnerI) }
+  //def testSum() { runTest(SumRunnerI) }
   def testSumIf() { runTest(SumIfRunnerI) }
   // def testAggregateIf() { runTest(AggregateIfRunnerI) }
   // def testAggregate2d() { runTest(Aggregate2dRunnerI) }
